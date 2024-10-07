@@ -9,10 +9,16 @@ def load_entries():
 
 entries = load_entries()
 
+# Add path to your static folder
 app_ui = ui.page_fluid(
-    ui.input_action_button("random_button", "Get Random Entry"),
+    ui.HTML("""
+    <link rel="stylesheet" href="/static/styles.css">
+    """),
+    ui.input_action_button("random_button", "Press to get a random item!",
+                           style="background-size: cover; width: 200px; height: 50px; color: white;"),
     ui.output_text("random_entry")
 )
+
 
 def server(input, output, session):
     @output()
