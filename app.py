@@ -7,7 +7,6 @@ import os
 # Print current directory and static files
 print("Current directory:", os.getcwd())
 print("Static files:", os.listdir('static'))
-print(os.path.isfile("static/ChestSymbol.png"))
 
 # Create FastAPI app
 app = FastAPI()
@@ -19,9 +18,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def read_root():
     return {"message": "Hello World"}
 
-@app.head("/")
-async def head_root():
-    return {"message": "Hello World"}  # You can return a simple response or status code
+# Temporary route to test static file serving
+@app.get("/test_static")
+async def test_static():
+    return {"static_files": os.listdir('static')}
 
 # Load entries from a text file
 def load_entries():
@@ -31,7 +31,6 @@ def load_entries():
 
 entries = load_entries()
 
-# Add path to your static folder
 app_ui = ui.page_fluid(
     ui.HTML("""
     <link rel="stylesheet" href="/static/styles.css">
@@ -44,12 +43,11 @@ app_ui = ui.page_fluid(
 
 def server(input, output, session):
     @output()
-    @render.text()  # Updated to use render.text()
+    @render.text()
     def random_entry():
-        print("Button pressed")  # Debug statement
-        if input.random_button():  # Call the function to check if button was pressed
+        print("Button pressed")
+        if input.random_button():
             selected_entry = random.choice(entries)
-            print(f"Selected entry: {selected_entry}")  # Debug statement
             return selected_entry
         return "Press the button to get a random entry!"
 
@@ -57,4 +55,3 @@ app = App(app_ui, server)
 
 if __name__ == "__main__":
     app.run()
-
