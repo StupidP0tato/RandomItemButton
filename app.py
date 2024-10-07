@@ -19,6 +19,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def read_root():
     return {"message": "Hello World"}
 
+@app.head("/")
+async def head_root():
+    return {"message": "Hello World"}  # You can return a simple response or status code
+
 # Load entries from a text file
 def load_entries():
     with open('randomItems.txt', 'r') as file:
@@ -40,19 +44,17 @@ app_ui = ui.page_fluid(
 
 def server(input, output, session):
     @output()
-    @render.text()
+    @render.text()  # Updated to use render.text()
     def random_entry():
-        try:
-            print("Button pressed")
-            if input.random_button():
-                # Simplified for testing: Return a fixed string
-                return "Test"  # Change this to return a random entry later
-            return "Press the button to get a random entry!"
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            return "An error occurred while fetching the entry."
+        print("Button pressed")  # Debug statement
+        if input.random_button():  # Call the function to check if button was pressed
+            selected_entry = random.choice(entries)
+            print(f"Selected entry: {selected_entry}")  # Debug statement
+            return selected_entry
+        return "Press the button to get a random entry!"
 
 app = App(app_ui, server)
 
 if __name__ == "__main__":
     app.run()
+
