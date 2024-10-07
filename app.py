@@ -54,8 +54,13 @@ shiny_app = App(app_ui, server)
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     logger.info("Root endpoint accessed")
-    # Return the UI directly as an HTML response
-    return shiny_app.ui()
+    try:
+        # Return the UI directly as an HTML response
+        return shiny_app.ui()
+    except Exception as e:
+        logger.error(f"Error in read_root: {str(e)}")
+        return HTMLResponse(content="Internal Server Error", status_code=500)
+
 
 # If running directly, start the server
 if __name__ == "__main__":
