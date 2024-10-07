@@ -39,7 +39,7 @@ app_ui = ui.page_fluid(
 
 # Define the server logic
 def server(user_input, output, session):
-    @output()
+    @output
     @render.text()
     def random_entry():
         if user_input.random_button():  # Check if the button was pressed
@@ -56,11 +56,11 @@ async def read_root(request: Request):
     logger.info("Root endpoint accessed")
     try:
         # Return the UI directly as an HTML response
-        return shiny_app.ui()
+        logger.info("Rendering Shiny app UI...")
+        return shiny_app.ui()  # Ensure UI is correctly referenced
     except Exception as e:
         logger.error(f"Error in read_root: {str(e)}")
         return HTMLResponse(content="Internal Server Error", status_code=500)
-
 
 # If running directly, start the server
 if __name__ == "__main__":
