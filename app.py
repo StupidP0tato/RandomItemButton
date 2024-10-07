@@ -14,10 +14,10 @@ app_ui = ui.page_fluid(
     ui.HTML("""
     <link rel="stylesheet" href="/static/styles.css">
     """),
-    # Replace the button with an image
-    ui.input_action_button("random_button", "", style="border: none; background: none; cursor: pointer;"),
+    # Only keep the image that acts as a button
     ui.HTML(
-        '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto;" onclick="document.getElementById(\'random_button\').click();">'),
+        '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto; cursor: pointer;" onclick="document.getElementById(\'random_button\').click();">'
+    ),
     ui.output_text("random_entry")
 )
 
