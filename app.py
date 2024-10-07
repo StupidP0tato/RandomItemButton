@@ -17,7 +17,7 @@ app_ui = ui.page_fluid(
     # Replace the button with an image
     ui.input_action_button("random_button", "", style="border: none; background: none; cursor: pointer;"),
     ui.HTML(
-        '<img src="/static/ChestSymbol.png" alt="Press to get a random item!" style="width: 200px; height: auto;" onclick="document.getElementById(\'random_button\').click();">'),
+        '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto;" onclick="document.getElementById(\'random_button\').click();">'),
     ui.output_text("random_entry")
 )
 
