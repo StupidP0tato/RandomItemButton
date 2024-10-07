@@ -39,7 +39,8 @@ app_ui = ui.page_fluid(
     ui.HTML(
         '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto; cursor: pointer;" onclick="document.getElementById(\'random_button\').click();">'
     ),
-    ui.output_text("random_entry")
+    ui.output_text("random_entry"),
+    ui.button_input("random_button", "Get Random Entry")  # Adding a button for interaction
 )
 
 # Define the server logic
@@ -58,10 +59,10 @@ def server(input, output, session):
 shiny_app = App(app_ui, server)
 
 # Route for the Shiny app
-@app.get("/", response_class=ui.HTML)
+@app.get("/")
 async def read_root():
     logger.info("Root endpoint accessed")
-    return shiny_app.render()  # Render the Shiny app directly
+    return shiny_app  # Return the shiny app instance itself, FastAPI will handle it correctly
 
 if __name__ == "__main__":
     import uvicorn
