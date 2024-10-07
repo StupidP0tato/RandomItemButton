@@ -1,11 +1,20 @@
-from shiny import App, render, ui
-import random
-
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from shiny import App, render, ui
+import random
+
+import os
+
+# Print current directory and static files
+print("Current directory:", os.getcwd())
+print("Static files:", os.listdir('static'))
+print(os.path.isfile("static/ChestSymbol.png"))
+
+# Create FastAPI app
 app = FastAPI()
 
+# Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Load entries from a text file
