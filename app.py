@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-
 from shiny import App, render, ui
 import random
-
 import os
 
 # Print current directory and static files
@@ -17,6 +15,10 @@ app = FastAPI()
 # Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}
+
 # Load entries from a text file
 def load_entries():
     with open('randomItems.txt', 'r') as file:
@@ -25,7 +27,7 @@ def load_entries():
 
 entries = load_entries()
 
-# Add path to your static folder
+# Define the Shiny UI
 app_ui = ui.page_fluid(
     ui.HTML("""
     <link rel="stylesheet" href="/static/styles.css">
@@ -37,7 +39,7 @@ app_ui = ui.page_fluid(
     ui.output_text("random_entry")
 )
 
-
+# Define the server logic
 def server(input, output, session):
     @output()
     @render.text()  # Updated to use render.text()
@@ -49,7 +51,10 @@ def server(input, output, session):
             return selected_entry
         return "Press the button to get a random entry!"
 
-app = App(app_ui, server)
+# Create and run the Shiny app
+shiny_app = App(app_ui, server)
 
 if __name__ == "__main__":
-    app.run()
+    import uvicorn
+    # Use uvicorn to run the FastAPI app on a specified port
+    uvicorn.run(app, host="0.0.0.0", port=8000)
