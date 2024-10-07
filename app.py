@@ -1,6 +1,13 @@
 from shiny import App, render, ui
 import random
 
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Load entries from a text file
 def load_entries():
     with open('randomItems.txt', 'r') as file:
