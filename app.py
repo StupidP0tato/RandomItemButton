@@ -3,12 +3,17 @@ from fastapi.staticfiles import StaticFiles
 from shiny import App, render, ui
 import random
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Print current directory and static files
-print("Current directory:", os.getcwd())
-print("Static files:", os.listdir('static'))
-print(os.path.isfile("static/ChestSymbol.png"))
-print(os.path.isfile("static/styles.css"))  # Check for the styles.css file
+logger.info("Current directory: %s", os.getcwd())
+logger.info("Static files: %s", os.listdir('static'))
+logger.info("ChestSymbol.png exists: %s", os.path.isfile("static/ChestSymbol.png"))
+logger.info("styles.css exists: %s", os.path.isfile("static/styles.css"))
 
 # Create FastAPI app
 app = FastAPI()
@@ -42,20 +47,21 @@ def server(input, output, session):
     @output()
     @render.text()
     def random_entry():
-        print("Button pressed")
+        logger.info("Button pressed")
         if input.random_button():
             selected_entry = random.choice(entries)
-            print(f"Selected entry: {selected_entry}")
+            logger.info("Selected entry: %s", selected_entry)
             return selected_entry
         return "Press the button to get a random entry!"
 
-# Create and run the Shiny app
+# Create the Shiny app
 shiny_app = App(app_ui, server)
 
 # Route for the Shiny app
 @app.get("/", response_class=ui.HTML)
 async def read_root():
-    return shiny_app
+    logger.info("Root endpoint accessed")
+    return shiny_app.render()  # Render the Shiny app directly
 
 if __name__ == "__main__":
     import uvicorn
