@@ -1,0 +1,13 @@
+version: 1
+services:
+  - type: web
+    name: RandomItemButton
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    healthCheckPath: /
+    healthCheckInterval: 5
+    healthCheckTimeout: 2
+    healthCheckHealthyThreshold: 2
+    healthCheckUnhealthyThreshold: 3
