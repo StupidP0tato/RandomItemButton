@@ -15,10 +15,6 @@ app = FastAPI()
 # Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-async def read_root():
-    return {"message": "Hello World"}
-
 # Load entries from a text file
 def load_entries():
     with open('randomItems.txt', 'r') as file:
@@ -54,7 +50,11 @@ def server(input, output, session):
 # Create and run the Shiny app
 shiny_app = App(app_ui, server)
 
+# Route for the Shiny app
+@app.get("/", response_class=shiny_app)
+async def read_root():
+    return shiny_app
+
 if __name__ == "__main__":
     import uvicorn
-    # Use uvicorn to run the FastAPI app on a specified port
     uvicorn.run(app, host="0.0.0.0", port=8000)
