@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from shiny import App, render, ui, Inputs, Outputs, Session
 import random
 import os
@@ -55,45 +54,11 @@ def server(user_input: Inputs, output: Outputs, session: Session):
 # Create the Shiny app
 shiny_app = App(app_ui, server)
 
-# Route for the Shiny app
-@app.get("/shiny")
+# Route to serve only the Shiny app directly, no wrapper HTML
+@app.get("/")
 async def serve_shiny_app():
     logger.info("Shiny app endpoint accessed")
-    # Use a basic HTML response to embed the Shiny app via iframe
-    return HTMLResponse(f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <link rel="stylesheet" href="/static/styles.css">
-    </head>
-    <body>
-        <h1>Shiny App</h1>
-        <iframe src="/shiny_ui" width="100%" height="500px"></iframe>
-    </body>
-    </html>
-    """)
-
-# Create a separate route to serve the UI of the Shiny app
-@app.get("/shiny_ui")
-async def shiny_ui():
-    return shiny_app  # Serving the Shiny app here
-
-# Root route returning an HTML page with an iframe for the Shiny app
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
-    logger.info("Root endpoint accessed")
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <link rel="stylesheet" href="/static/styles.css">
-    </head>
-    <body>
-        <h1>Random Entry Generator</h1>
-        <iframe src="/shiny" width="100%" height="500px"></iframe>
-    </body>
-    </html>
-    """
+    return shiny_app  # Serving Shiny app directly without iframe
 
 if __name__ == "__main__":
     import uvicorn
