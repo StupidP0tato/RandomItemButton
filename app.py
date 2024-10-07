@@ -23,11 +23,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Load entries from a text file
 def load_entries():
-    if os.path.isfile('randomItems.txt'):
-        with open('randomItems.txt', 'r') as file:
-            entries = file.readlines()
-        return [entry.strip() for entry in entries if entry.strip()]
-    return []  # Return an empty list if the file does not exist
+    with open('randomItems.txt', 'r') as file:
+        file_entries = file.readlines()  # Renamed to file_entries
+    return [entry.strip() for entry in file_entries if entry.strip()]
 
 entries = load_entries()
 
@@ -40,18 +38,16 @@ app_ui = ui.page_fluid(
         '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto; cursor: pointer;" onclick="document.getElementById(\'random_button\').click();">'
     ),
     ui.output_text("random_entry"),
-    ui.button_input("random_button", "Get Random Entry")  # Adding a button for interaction
+    ui.input_action_button("random_button", "Get Random Entry")  # Use input_action_button
 )
 
 # Define the server logic
-def server(input, output, session):
+def server(user_input, output, session):
     @output()
     @render.text()
     def random_entry():
-        logger.info("Button pressed")
-        if input.random_button():
+        if user_input.random_button():
             selected_entry = random.choice(entries)
-            logger.info("Selected entry: %s", selected_entry)
             return selected_entry
         return "Press the button to get a random entry!"
 
