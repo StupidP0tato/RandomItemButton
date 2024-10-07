@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from shiny import App, render, ui, Inputs, Outputs, Session
+from fastapi.responses import HTMLResponse
+from shiny import App, ui, render  # Import render from shiny
 import random
 import os
 import logging
@@ -24,29 +25,25 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Load entries from a text file
 def load_entries():
     with open('randomItems.txt', 'r') as file:
-        file_entries = file.readlines()
+        file_entries = file.readlines()  # Renamed to file_entries
     return [entry.strip() for entry in file_entries if entry.strip()]
 
 entries = load_entries()
 
 # Define the Shiny UI
 app_ui = ui.page_fluid(
-    ui.HTML("""
-    <link rel="stylesheet" href="/static/styles.css">
-    """),
-    ui.HTML(
-        '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto; cursor: pointer;" onclick="document.getElementById(\'random_button\').click();">'
-    ),
+    ui.HTML('<link rel="stylesheet" href="/static/styles.css">'),
+    ui.HTML('<img src="/static/ChestSymbol.png" style="width: 200px; height: auto; cursor: pointer;" onclick="document.getElementById(\'random_button\').click();">'),
     ui.output_text("random_entry"),
-    ui.input_action_button("random_button", "Get Random Entry")
+    ui.input_action_button("random_button", "Get Random Entry")  # Use input_action_button
 )
 
-# Define the server logic for Shiny app
-def server(user_input: Inputs, output: Outputs, session: Session):
+# Define the server logic
+def server(user_input, output, session):
     @output()
-    @render.text()
+    @render.text()  # Change to render.text() directly
     def random_entry():
-        if user_input.random_button():
+        if user_input.random_button():  # Changed back to user_input
             selected_entry = random.choice(entries)
             return selected_entry
         return "Press the button to get a random entry!"
@@ -54,12 +51,13 @@ def server(user_input: Inputs, output: Outputs, session: Session):
 # Create the Shiny app
 shiny_app = App(app_ui, server)
 
-# Route to serve only the Shiny app directly, no wrapper HTML
-@app.get("/")
-async def serve_shiny_app():
-    logger.info("Shiny app endpoint accessed")
-    return shiny_app  # Serving Shiny app directly without iframe
+# Route for the Shiny app
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    logger.info("Root endpoint accessed")
+    return shiny_app.ui  # Directly return the UI of the Shiny app
 
+# If running directly, start the server
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
