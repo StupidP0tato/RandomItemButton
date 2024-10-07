@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from shiny import App, render, ui
+from fastapi.responses import HTMLResponse
+from shiny import App, render, ui, Inputs, Outputs, Session
 import random
 import os
 import logging
@@ -24,7 +25,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Load entries from a text file
 def load_entries():
     with open('randomItems.txt', 'r') as file:
-        file_entries = file.readlines()  # Renamed to file_entries
+        file_entries = file.readlines()
     return [entry.strip() for entry in file_entries if entry.strip()]
 
 entries = load_entries()
@@ -38,11 +39,11 @@ app_ui = ui.page_fluid(
         '<img src="/static/ChestSymbol.png" style="width: 200px; height: auto; cursor: pointer;" onclick="document.getElementById(\'random_button\').click();">'
     ),
     ui.output_text("random_entry"),
-    ui.input_action_button("random_button", "Get Random Entry")  # Use input_action_button
+    ui.input_action_button("random_button", "Get Random Entry")
 )
 
-# Define the server logic
-def server(user_input, output, session):
+# Define the server logic for Shiny app
+def server(user_input: Inputs, output: Outputs, session: Session):
     @output()
     @render.text()
     def random_entry():
@@ -55,10 +56,27 @@ def server(user_input, output, session):
 shiny_app = App(app_ui, server)
 
 # Route for the Shiny app
-@app.get("/")
-async def read_root():
+@app.get("/shiny_app")
+async def serve_shiny_app():
+    logger.info("Shiny app endpoint accessed")
+    return shiny_app
+
+# Root route returning an HTML page with an iframe for the Shiny app
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
     logger.info("Root endpoint accessed")
-    return shiny_app  # Return the shiny app instance itself, FastAPI will handle it correctly
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <link rel="stylesheet" href="/static/styles.css">
+    </head>
+    <body>
+        <h1>Random Entry Generator</h1>
+        <iframe src="/shiny_app" width="100%" height="500px"></iframe>
+    </body>
+    </html>
+    """
 
 if __name__ == "__main__":
     import uvicorn
